@@ -1,3 +1,4 @@
+from __future__ import annotations
 import cv2
 import numpy as np
 import glob
@@ -12,7 +13,7 @@ layer_names = net.getLayerNames()
 output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 
-def get_box_positions(img) -> tuple(list(tuple(int, int, int, int)), list(float)):
+def get_box_positions(img, threshhold: float = 0.3) -> list[tuple[int, int, int, int]]:
     height, width, channels = img.shape
     # Detecting objects
     blob = cv2.dnn.blobFromImage(
@@ -22,14 +23,12 @@ def get_box_positions(img) -> tuple(list(tuple(int, int, int, int)), list(float)
     outs = net.forward(output_layers)
 
     # Showing informations on the screen
-    confidences = []
     boxes = []
     for out in outs:
         for detection in out:
             scores = detection[5:]
             class_id = np.argmax(scores)
-            confidence = scores[class_id]
-            if confidence > 0.3:
+            if scores[class_id] > threshhold:
                 # Object detected
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
@@ -41,15 +40,15 @@ def get_box_positions(img) -> tuple(list(tuple(int, int, int, int)), list(float)
                 y = int(center_y - h / 2)
 
                 boxes.append([x, y, w, h])
-                confidences.append(float(confidence))
 
-    return boxes, confidences
+    return boxes
 
 
-def display_results_wait(img, boxes: list(tuple(int, int, int, int)), confidences: list(float)) -> None:
+def display_results(img, boxes: list[tuple[int, int, int, int]]) -> None:
 
+    # hack -> confidences are not relevant atm
+    confidences = [0.3] * len(boxes)
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-    print(indexes)
     font = cv2.FONT_HERSHEY_PLAIN
     for i in range(len(boxes)):
         if i in indexes:
@@ -58,6 +57,3 @@ def display_results_wait(img, boxes: list(tuple(int, int, int, int)), confidence
             cv2.putText(img, "Package", (x, y + 30), font, 3, (255, 0, 0), 2)
 
     cv2.imshow("Image", img)
-    key = cv2.waitKey(0)
-
-# cv2.destroyAllWindows()

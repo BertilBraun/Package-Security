@@ -1,3 +1,4 @@
+from __future__ import annotations
 import cv2
 import numpy as np
 from face_recognition import face_encodings, face_locations, face_distance, load_image_file, compare_faces
@@ -5,18 +6,18 @@ from face_recognition import face_encodings, face_locations, face_distance, load
 
 def _load_known():
     return [
-        face_encodings(load_image_file("../assets/biden.jpg"))[0],
-        face_encodings(load_image_file("../assets/obama.jpg"))[0]
+        face_encodings(load_image_file("../assets/face_test/biden.jpg"))[0],
+        face_encodings(load_image_file("../assets/face_test/obama.jpg"))[0]
     ], [
-        "biden",
-        "obama"
+        "Biden",
+        "Obama"
     ]
 
 
 known_encodings, known_names = _load_known()
 
 
-def detect_faces(img) -> list(tuple(str, tuple(int, int, int, int))):
+def detect_faces(img) -> tuple[list[str], list[tuple[int, int, int, int]]]:
     # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
     frame = cv2.resize(img, (0, 0), fx=0.25, fy=0.25)[:, :, ::-1]
 
@@ -41,12 +42,12 @@ def detect_faces(img) -> list(tuple(str, tuple(int, int, int, int))):
         else:
             names.append("THIEF")
 
-    return zip(names, locations)
+    return names, locations
 
 
-def display_detection(img, detection_result: list(tuple(str, tuple(int, int, int, int)))):
+def display_detection(img, names: list[str], locations: list[tuple[int, int, int, int]]):
 
-    for name, (top, right, bottom, left) in detection_result:
+    for name, (top, right, bottom, left) in zip(names, locations):
         # Scale back up face locations since the frame we detected in was scaled to 1/4 size
         top *= 4
         right *= 4
@@ -65,4 +66,3 @@ def display_detection(img, detection_result: list(tuple(str, tuple(int, int, int
 
     # Display the resulting image
     cv2.imshow('Image', img)
-
