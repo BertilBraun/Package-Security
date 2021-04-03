@@ -11,7 +11,7 @@ net = cv2.dnn.readNet("../assets/yolov3_training_last.weights", "../assets/yolov
 classes = ["Package"]
 
 # Images path
-images_path = glob.glob(r"../assets/test/*.jpg")
+images_path = glob.glob(r"../assets/*.jpg")
 
 
 
