@@ -5,38 +5,23 @@ import random
 
 
 # Load Yolo
-net = cv2.dnn.readNet("../assets/yolov3_training_last.weights", "../assets/yolov3_testing.cfg")
-
-# Name custom object
-classes = ["Package"]
-
-# Images path
-images_path = glob.glob(r"../assets/*.jpg")
-
-
+net = cv2.dnn.readNet("../assets/yolov3_training_last.weights",
+                      "../assets/yolov3_testing.cfg")
 
 layer_names = net.getLayerNames()
 output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-colors = np.random.uniform(0, 255, size=(len(classes), 3))
 
-# Insert here the path of your images
-random.shuffle(images_path)
-# loop through all the images
-for img_path in images_path:
-    # Loading image
-    img = cv2.imread(img_path)
-    img = cv2.resize(img, None, fx=0.4, fy=0.4)
+
+def get_box_positions(img) -> tuple(list(tuple(int, int, int, int)), list(float)):
     height, width, channels = img.shape
-    # if width < 500 or height < 500: continue
-
     # Detecting objects
-    blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+    blob = cv2.dnn.blobFromImage(
+        img, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
 
     net.setInput(blob)
     outs = net.forward(output_layers)
 
     # Showing informations on the screen
-    class_ids = []
     confidences = []
     boxes = []
     for out in outs:
@@ -46,7 +31,6 @@ for img_path in images_path:
             confidence = scores[class_id]
             if confidence > 0.3:
                 # Object detected
-                print(class_id)
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
                 w = int(detection[2] * width)
@@ -58,7 +42,11 @@ for img_path in images_path:
 
                 boxes.append([x, y, w, h])
                 confidences.append(float(confidence))
-                class_ids.append(class_id)
+
+    return boxes, confidences
+
+
+def display_results_wait(img, boxes: list(tuple(int, int, int, int)), confidences: list(float)) -> None:
 
     indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
     print(indexes)
@@ -66,13 +54,10 @@ for img_path in images_path:
     for i in range(len(boxes)):
         if i in indexes:
             x, y, w, h = boxes[i]
-            label = str(classes[class_ids[i]])
-            color = colors[class_ids[i]]
-            cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(img, label, (x, y + 30), font, 3, color, 2)
-
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            cv2.putText(img, "Package", (x, y + 30), font, 3, (255, 0, 0), 2)
 
     cv2.imshow("Image", img)
     key = cv2.waitKey(0)
 
-cv2.destroyAllWindows()
+# cv2.destroyAllWindows()
