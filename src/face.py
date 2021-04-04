@@ -2,7 +2,7 @@ from __future__ import annotations
 import cv2
 import numpy as np
 from face_recognition import face_encodings, face_locations, face_distance, load_image_file, compare_faces
-
+from util import boxt
 
 def _load_known():
     return [
@@ -17,7 +17,7 @@ def _load_known():
 known_encodings, known_names = _load_known()
 
 
-def detect_faces(img) -> tuple[list[str], list[tuple[int, int, int, int]]]:
+def detect_faces(img) -> tuple[list[str], list[boxt]]:
     # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
     frame = cv2.resize(img, (0, 0), fx=0.25, fy=0.25)[:, :, ::-1]
 
@@ -45,7 +45,7 @@ def detect_faces(img) -> tuple[list[str], list[tuple[int, int, int, int]]]:
     return names, locations
 
 
-def display_detection(img, names: list[str], locations: list[tuple[int, int, int, int]]):
+def display_detection(img, names: list[str], locations: list[boxt]):
 
     for name, (top, right, bottom, left) in zip(names, locations):
         # Scale back up face locations since the frame we detected in was scaled to 1/4 size

@@ -1,8 +1,7 @@
 from __future__ import annotations
 import cv2
 import numpy as np
-import glob
-import random
+from util import boxt
 
 
 # Load Yolo
@@ -13,7 +12,7 @@ layer_names = net.getLayerNames()
 output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 
-def get_box_positions(img, threshhold: float = 0.3) -> list[tuple[int, int, int, int]]:
+def get_box_positions(img, threshhold: float = 0.3) -> list[boxt]:
     height, width, channels = img.shape
     # Detecting objects
     blob = cv2.dnn.blobFromImage(
@@ -44,7 +43,7 @@ def get_box_positions(img, threshhold: float = 0.3) -> list[tuple[int, int, int,
     return boxes
 
 
-def display_results(img, boxes: list[tuple[int, int, int, int]]) -> None:
+def display_results(img, boxes: list[boxt]) -> None:
 
     # hack -> confidences are not relevant atm
     confidences = [0.3] * len(boxes)
