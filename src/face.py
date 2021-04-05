@@ -4,6 +4,7 @@ import numpy as np
 from face_recognition import face_encodings, face_locations, face_distance, load_image_file, compare_faces
 from util import boxt
 
+
 def _load_known():
     return [
         face_encodings(load_image_file("../assets/face_test/biden.jpg"))[0],
@@ -42,7 +43,7 @@ def detect_faces(img) -> tuple[list[str], list[boxt]]:
         else:
             names.append("THIEF")
 
-    return names, locations
+    return names, [(x*4, y*4, w*4, h*4) for (x, y, w, h) in locations]
 
 
 def display_detection(img, names: list[str], locations: list[boxt]):

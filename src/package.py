@@ -38,7 +38,7 @@ def get_box_positions(img, threshhold: float = 0.3) -> list[boxt]:
                 x = int(center_x - w / 2)
                 y = int(center_y - h / 2)
 
-                boxes.append([x, y, w, h])
+                boxes.append((x, y, w, h))
 
     return boxes
 
