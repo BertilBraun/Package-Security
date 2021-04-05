@@ -1,15 +1,18 @@
 import cv2
+from datetime import datetime
 
 from package import get_box_positions, display_results
 from speech import play_text
 from face import detect_faces, display_detection
 from util import boxt, get_center_from_box
 
+
 def main():
 
     video_capture = cv2.VideoCapture(0)
 
     last_box_stack = []
+    last_time_played = datetime.now()
 
     while True:
         # Grab a single frame of video
@@ -27,10 +30,12 @@ def main():
             print("face", loc, get_center_from_box(loc))
 
         # If packet was in picture + packet is moving up + face not recognized -> play Alarm
-        if "THIEF" in names:  # TODO and packet was in picture and packet is moving up
-            # TODO only play once
-            # play_text("Hey! Stop this right now!")
-            pass
+        if "THIEF" in names \
+            and (datetime.now() - last_time_played).total_seconds() > 20 \
+                :  # TODO and packet was in picture and packet is moving up
+            # only play once
+            play_text("Hey! Stop this right now!")
+            last_time_played = datetime.now()
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
