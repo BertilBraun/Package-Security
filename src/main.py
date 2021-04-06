@@ -1,5 +1,6 @@
 from __future__ import annotations
 import cv2
+import time
 from datetime import datetime
 
 from package import get_box_positions, display_results
@@ -29,11 +30,18 @@ def main():
         # Grab a single frame of video
         ret, frame = video_capture.read()
 
+        start_time = time.time()
+
         names, locations = detect_faces(frame)
         display_detection(frame, names, locations)
 
+        print("--- %s seconds --- FACES ---" % (time.time() - start_time))
+        start_time = time.time()
+
         boxes = get_box_positions(frame)
         # display_results(frame, boxes)
+
+        print("--- %s seconds --- BOXES ---" % (time.time() - start_time))
 
         # prevent postman etc to trigger the alarm with new packages
         if len(boxes) > len(tracked_boxes):
